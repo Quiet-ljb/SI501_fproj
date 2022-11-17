@@ -1,36 +1,41 @@
-import requests
-import pandas as pd
-from bs4 import BeautifulSoup
 import json
 
-api_key = "reSfKMMzJnXCzj5P_1TGJxx7kaxc4wyaJeO8dWFjSqr1l5ZoKCy1t16yp_frAjilTea-vavOKIodvRstANMOuTAvgLbNefYmZSW5mxZRxqWXEE-FueQByzJiM9JBY3Yx"
-http_header = {'Authorization': 'Bearer '+api_key}
-url = 'https://api.yelp.com/v3/businesses/search'
-parameter = {'location': 'tampico','attributes':'hot_and_new','limit':1,'sort_by':'rating'}
+all_city_data = []
+f = open("city_data.json","r")
+lines = f.readlines()
+for line in lines:
+    data = json.loads(line)
+    all_city_data.append(data)
+f.close()
 
-print(json.loads(requests.get(url,headers = http_header,params=parameter).text))
+class city_letter_node:
+    def __init__(self, letter):
+        self.letter = letter
+        self.children = []
+        self.info = None
 
-scrape_url = "https://en.wikipedia.org/wiki/List_of_United_States_cities_by_population"
-soup = BeautifulSoup(requests.get(scrape_url).text)
+    def insert_city(self,city_name,city_info):
+        if city_name == "":
+            self.info = city_info
+            return
+        for child in self.children:
+            if child.letter == city_name[0]:
+                child.insert_city(city_name[1:],city_info)
+                return
+        new_child = city_letter_node(city_name[0])
+        print("inserting",city_name[0])
+        self.children.append(new_child)
+        new_child.insert_city(city_name[1:],city_info)
 
+    def get_city_info(self,city_name):
+        if city_name == "":
+            return self.info
+        for child in self.children:
+            if child.letter == city_name[0]:
+                return child.get_city_info(city_name[1:])
+        return None
 
-city_table = soup.find_all('table',class_="wikitable sortable")[0]
-header = city_table.find("tr")
-data_header = []
-for items in header:
-    try:
-        data_header.append(items.get_text())
-    except:
-        continue
-
-html_data = city_table.find_all("tr")[1:]
-cities = []
-for element in html_data:
-    sub_data = []
-    for sub_element in element:
-        try:
-            sub_data.append(sub_element.get_text())
-        except:
-            continue
-    cities.append(sub_data[3].replace('\n',''))
-print(cities)
+    def show(self,level=0):
+        print(" "*level + self.letter)
+        for child in self.children:
+            child.show(level+1)
