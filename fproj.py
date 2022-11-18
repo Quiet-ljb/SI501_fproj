@@ -11,31 +11,43 @@ f.close()
 class city_letter_node:
     def __init__(self, letter):
         self.letter = letter
-        self.children = []
+        self.children = {}
         self.info = None
 
-    def insert_city(self,city_name,city_info):
-        if city_name == "":
+    def insert_city(self, city_name, city_info):
+        if city_name=='':
             self.info = city_info
             return
-        for child in self.children:
-            if child.letter == city_name[0]:
-                child.insert_city(city_name[1:],city_info)
-                return
-        new_child = city_letter_node(city_name[0])
-        print("inserting",city_name[0])
-        self.children.append(new_child)
-        new_child.insert_city(city_name[1:],city_info)
+        letter = city_name[0]
+        if letter not in self.children:
+            self.children[letter] = city_letter_node(letter)
+        self.children[letter].insert_city(city_name[1:], city_info)
 
-    def get_city_info(self,city_name):
-        if city_name == "":
+    def get_city_info(self, city_name):
+        if city_name=='':
             return self.info
-        for child in self.children:
-            if child.letter == city_name[0]:
-                return child.get_city_info(city_name[1:])
-        return None
+        letter = city_name[0]
+        if letter not in self.children:
+            return None
+        return self.children[letter].get_city_info(city_name[1:])
+
+    def get_city_info_by_prefix(self, prefix):
+        if prefix=='':
+            return self.get_all_city_info()
+        letter = prefix[0]
+        if letter not in self.children:
+            return []
+        return self.children[letter].get_city_info_by_prefix(prefix[1:])
+
+    def get_all_city_info(self):
+        if self.info is not None:
+            return [self.info]
+        res = []
+        for child in self.children.values():
+            res.extend(child.get_all_city_info())
+        return res
 
     def show(self,level=0):
-        print(" "*level + self.letter)
-        for child in self.children:
+        print("-"*level + self.letter)
+        for child in self.children.values():
             child.show(level+1)
