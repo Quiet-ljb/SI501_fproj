@@ -51,3 +51,25 @@ class city_letter_node:
         print("-"*level + self.letter)
         for child in self.children.values():
             child.show(level+1)
+
+top_node = city_letter_node("")
+
+for city in all_city_data:
+    try:
+        city_name = city['businesses'][0]['location']['city']
+        city_name = city_name.lower()
+        city_name = city_name.replace(" ","")
+        top_node.insert_city(city_name, city)
+    except:
+        pass
+
+city_name = input("Enter a city name that you want to search for a restaurant: ")
+restaurant_info = top_node.get_city_info(city_name.lower().replace(" ",""))
+if restaurant_info is None:
+    print("Sorry, we don't have any restaurant information for this city.")
+else:
+    print("Here are the most hot restaurant for this city:")
+    display_address = ''
+    for address in restaurant_info['businesses'][0]['location']['display_address']:
+        display_address += (address + ' ')
+    print("Location: " + display_address)
