@@ -1,5 +1,4 @@
 import requests
-import pandas as pd
 from bs4 import BeautifulSoup
 import json
 
@@ -30,13 +29,11 @@ for element in html_data:
             continue
     cities.append(sub_data[3].replace('\n',''))
 
-all_cities_data = []
 f = open('city_data.json','w')
 for city in cities:
     try:
         parameter = {'location': city,'attributes':'hot_and_new','limit':1,'sort_by':'rating'}
         city_data = json.loads(requests.get(url,headers = http_header,params=parameter).text)
-        all_cities_data.append(city_data)
         print(json.dumps(city_data),file=f)
     except:
         print(city, 'loading failed')
