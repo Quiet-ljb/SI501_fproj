@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Find best restaurant</title>
+    </head>
+    <body>
+        <h1>Recommend Restaurants</h1>
+        {% for res in restaurants %}
+            <p> Name: {{ res.name }} <a href="/detail/{{ res.city }}">Detail</a></p>
+        {% endfor %}
+    </body>
+</html>

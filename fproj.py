@@ -1,12 +1,6 @@
 import json
+from flask import Flask, render_template, request
 
-all_city_data = []
-f = open("city_data.json","r")
-lines = f.readlines()
-for line in lines:
-    data = json.loads(line)
-    all_city_data.append(data)
-f.close()
 
 class city_letter_node:
     def __init__(self, letter):
@@ -52,6 +46,14 @@ class city_letter_node:
         for child in self.children.values():
             child.show(level+1)
 
+all_city_data = []
+f = open("city_data.json","r")
+lines = f.readlines()
+for line in lines:
+    data = json.loads(line)
+    all_city_data.append(data)
+f.close()
+
 top_node = city_letter_node("")
 
 for city in all_city_data:
@@ -63,13 +65,85 @@ for city in all_city_data:
     except:
         pass
 
-city_name = input("Enter a city name that you want to search for a restaurant: ")
-restaurant_info = top_node.get_city_info(city_name.lower().replace(" ",""))
-if restaurant_info is None:
-    print("Sorry, we don't have any restaurant information for this city.")
-else:
-    print("Here are the most hot restaurant for this city:")
+app = Flask(__name__)
+
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+@app.route('/search', methods=['POST','GET'])
+def search():
+    try:
+        old_city_name = request.form['city']
+        city_name = old_city_name.lower()
+        city_name = city_name.replace(" ","")
+        city_info = top_node.get_city_info(city_name)
+    except:
+        return render_template('form.html',search = True)
+    if city_info is None:
+        return render_template('form.html', message='Restaurant not found')
+    else:
+        display_address = ''
+        for address in city_info['businesses'][0]['location']['display_address']:
+            display_address += (address + ' ')
+        res_name = city_info['businesses'][0]['name']
+        res_url = city_info['businesses'][0]['url']
+        res_phone = city_info['businesses'][0]['display_phone']
+        
+        return render_template('form.html', message="Most hot restaurant in "+old_city_name,city_info=city_info,address=display_address \
+            ,name=res_name, url=res_url,phone = res_phone,search=True)
+
+@app.route('/recommend')
+def recommend():
+    all = top_node.get_all_city_info()
+    all_res = [{'name':ele['businesses'][0]['name'],'city':ele['businesses'][0]['location']['city']}for ele in all[0:5]]
+    return render_template('rec.html',restaurants=all_res)
+
+@app.route('/detail/<city>')
+def detail(city):
+    city_info = top_node.get_city_info(city.lower().replace(" ",""))
     display_address = ''
-    for address in restaurant_info['businesses'][0]['location']['display_address']:
+    for address in city_info['businesses'][0]['location']['display_address']:
         display_address += (address + ' ')
-    print("Location: " + display_address)
+    res_name = city_info['businesses'][0]['name']
+    res_url = city_info['businesses'][0]['url']
+    res_phone = city_info['businesses'][0]['display_phone']
+    return render_template('form.html',city_info=city_info,address=display_address \
+        ,name=res_name, url=res_url,phone = res_phone,search=False)
+
+@app.route('/cities')
+def cities():
+    all = top_node.get_all_city_info()
+    all_city = [{'name':ele['businesses'][0]['location']['city']}for ele in all]
+    return render_template('cities.html',cities=all_city)
+
+@app.route('/search_by_prefix', methods=['POST','GET'])
+def search_by_prefix():
+    try:
+        old_city_name = request.form['city']
+        city_name = old_city_name.lower()
+        city_name = city_name.replace(" ","")
+        city_info = top_node.get_city_info_by_prefix(city_name)
+    except:
+        return render_template('form.html',search = True)
+    if city_info is None:
+        return render_template('form.html', message='Restaurant not found')
+    else:
+        all_city = [{'name':ele['businesses'][0]['location']['city']}for ele in city_info]
+        return render_template('cities.html',cities=all_city)
+
+app.run(debug=True)
+
+
+
+
+# city_name = input("Enter a city name that you want to search for a restaurant: ")
+# restaurant_info = top_node.get_city_info(city_name.lower().replace(" ",""))
+# if restaurant_info is None:
+#     print("Sorry, we don't have any restaurant information for this city.")
+# else:
+#     print("Here are the most hot restaurant for this city:")
+#     display_address = ''
+#     for address in restaurant_info['businesses'][0]['location']['display_address']:
+#         display_address += (address + ' ')
+#     print("Location: " + display_address)

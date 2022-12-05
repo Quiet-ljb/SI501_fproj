@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Find best restaurant</title>
+    </head>
+    <body>
+    {% if search %}
+        <form method="post">
+            <input type="text" placeholder="Type a city's name" name="city">
+            <input type="submit" value="Search">
+        </form>
+    {% endif %}
+    <h1>{% if message %}{{ message }}{% endif %} </h1>
+    {% if city_info %}
+        <p> Name: {{ name }}</p>
+        <p> Location : {{ address }} </p>
+        <p> Phone Number : {{ phone }} </p>
+        <a href="{{ url }}""> Go to Restaurant Web</a>
+    {% endif %}
+
+    <p>
+    </body>
+</html>

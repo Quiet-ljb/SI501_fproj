@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Find best restaurant</title>
+    </head>
+    <body>
+        <h1>City List</h1>
+        {% for city in cities %}
+            <p> <a href="/detail/{{ city.name }}">{{ city.name }}</a></p>
+        {% endfor %}
+    </body>
+</html>
