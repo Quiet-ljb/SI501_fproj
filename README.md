@@ -32,6 +32,6 @@
  * For the last two options, click on the result you are interested at  
 
 ## Data Structure
-All data was stored in a prefix tree, where all children of a node have common prefix stored in their parent node. Below shows an example about the prefix tree. Instead of storing those words in the figure, we store city name in the tree. Also, this tree is not case-sensitive and ignores the white space (e.g. ``Ann Arbor'' will be stored as ``annarbor'' in this tree  
+All data was stored in a prefix tree, where all children of a node have common prefix stored in their parent node. Below shows an example about the prefix tree. Instead of storing those words in the figure, we store city name in the tree. Also, this tree is not case-sensitive and ignores the white space (e.g. ''Ann Arbor'' will be stored as ''annarbor'' in this tree  
 
-![Prefix tree example](ex.PNG)
+![Prefix tree example](ex.png)
